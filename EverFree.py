@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.utils import save_image
 from torchvision.datasets import MNIST
-
+from skorch import NeuralNetworkClassifier
 
 num_epochs = 1
 batch_size = 128
@@ -46,23 +46,12 @@ class EverFree(nn.Module):
         return x
 
 
-model = EverFree()
-criterion = nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,
-                             weight_decay=1e-5)
+model = NeuralNetworkClassifier(
+    EverFree,
+    max_epochs=1,
+    lr=0.01,
+    iterator_train_shuffle=True
+    )
 
+model.fit()
 
-for epoch in range(num_epochs):
-    for data in dataloader:
-        img, target = data
-        print(target)
-        img = Variable(img)
-        output = model(img)
-        loss = criterion(output, target)
-        
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-    print('epoch [{}/{}], loss:{:.4f}'
-          .format(epoch+1, num_epochs, loss.data))
